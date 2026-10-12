@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlalchemy==2.0.28
+psycopg[binary]
+pydantic
+pydantic-settings
+python-dotenv==1.0.1

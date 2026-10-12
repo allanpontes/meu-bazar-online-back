@@ -1,0 +1,29 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.produtos.rotas import router as produtos_router
+from app.usuarios.rotas import router as usuarios_router
+from app.carrinho.rotas import router as carrinho_router
+from app.dashboard.rotas import router as dashboard_router
+from app.core.database import engine, Base
+
+# Cria absolutamente todas as tabelas novas no Neon de uma vez só
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Bazar Online API Super", version="1.2.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(produtos_router, prefix="/produtos", tags=["Produtos"])
+app.include_router(usuarios_router, prefix="/auth", tags=["Autenticação"])
+app.include_router(carrinho_router, prefix="/carrinho", tags=["Carrinho e Reservas"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard Gerencial"])
+
+@app.get("/")
+def read_root():
+    return {"status": "Backend do Bazar Online completo com Dashboard e Carrinho operando!"}
