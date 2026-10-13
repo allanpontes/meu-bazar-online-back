@@ -4,6 +4,7 @@ from typing import List
 from app.core.database import get_db, engine, Base
 from app.produtos.modelos import Produto
 from app.produtos.schemas import ProdutoCreate, ProdutoUpdate, ProdutoResponse
+from app.sacola.servico import liberar_expirados
 
 Base.metadata.create_all(bind=engine)
 
@@ -11,7 +12,8 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ProdutoResponse])
 def listar_produtos(db: Session = Depends(get_db)):
-    # Traz todos os produtos salvos na tabela
+    # Devolve à vitrine as peças cujas reservas já venceram antes de listar
+    liberar_expirados(db)
     return db.query(Produto).all()
 
 @router.post("/", response_model=ProdutoResponse, status_code=status.HTTP_201_CREATED)
