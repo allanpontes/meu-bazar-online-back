@@ -17,5 +17,5 @@ class Produto(Base):
     imagem_url = Column(String, nullable=True)
     estado_conservacao = Column(String, nullable=False)
     estoque = Column(Integer, default=1)
-    status = Column(String, default="Disponivel")  # Disponivel, Reservado, Sold
+    status = Column(String, default="Disponivel")  # Disponivel, Reservado, Vendido
     criado_em = Column(String, default=obter_hora_brasilia_str)
