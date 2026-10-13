@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
     SACOLA_MINUTOS: int = 15
     SACOLA_MAX_ITENS: int = 10
+    # Chave das rotas administrativas de pedidos; vazia = rotas bloqueadas
+    ADMIN_API_KEY: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
