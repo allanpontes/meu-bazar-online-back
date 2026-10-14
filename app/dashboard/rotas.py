@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.core.database import get_db
+from app.core.seguranca import exigir_admin
 from app.produtos.modelos import Produto
 from app.usuarios.modelos import Usuario
 
 router = APIRouter()
 
-@router.get("/resumo")
+@router.get("/resumo", dependencies=[Depends(exigir_admin)])
 def obter_metricas_dashboard(db: Session = Depends(get_db)):
     # 1. Volumetria de Clientes/Usuários cadastrados
     total_usuarios = db.query(Usuario).count()
