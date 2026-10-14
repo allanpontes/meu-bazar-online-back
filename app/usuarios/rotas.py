@@ -1,25 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.config import settings
-from app.core.seguranca import HASH_FALSO, criar_token_acesso, gerar_hash_senha, verificar_senha
+from app.core.seguranca import HASH_FALSO, criar_token_acesso, verificar_senha
 from app.usuarios.modelos import Usuario
-from app.usuarios.schemas import UsuarioCreate, UsuarioResponse, LoginRequest, TokenResponse
+from app.usuarios.schemas import LoginRequest, TokenResponse
 
 router = APIRouter()
 
-@router.post("/registrar", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
-def registrar_admin(usuario: UsuarioCreate, db: Session = Depends(get_db)):
-    # Verifica se o email já existe
-    existe = db.query(Usuario).filter(Usuario.email == usuario.email).first()
-    if existe:
-        raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado.")
-    
-    novo_usuario = Usuario(email=usuario.email, senha_hash=gerar_hash_senha(usuario.senha), is_admin=True)
-    db.add(novo_usuario)
-    db.commit()
-    db.refresh(novo_usuario)
-    return novo_usuario
 
 @router.post("/login", response_model=TokenResponse)
 def login(dados: LoginRequest, db: Session = Depends(get_db)):
