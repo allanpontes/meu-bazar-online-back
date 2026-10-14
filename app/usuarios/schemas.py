@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 class UsuarioBase(BaseModel):
     email: EmailStr
 
 class UsuarioCreate(UsuarioBase):
-    senha: str
+    senha: str = Field(min_length=8, max_length=72)
 
 class UsuarioResponse(UsuarioBase):
     id: int

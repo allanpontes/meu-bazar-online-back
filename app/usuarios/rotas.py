@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
+from app.core.seguranca import gerar_hash_senha, verificar_senha
 from app.usuarios.modelos import Usuario
 from app.usuarios.schemas import UsuarioCreate, UsuarioResponse, LoginRequest
 
@@ -13,8 +14,7 @@ def registrar_admin(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     if existe:
         raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado.")
     
-    # IMPORTANTE: Em produção, use criptografia (ex: passlib/bcrypt) para a senha!
-    novo_usuario = Usuario(email=usuario.email, senha_hash=usuario.senha, is_admin=True)
+    novo_usuario = Usuario(email=usuario.email, senha_hash=gerar_hash_senha(usuario.senha), is_admin=True)
     db.add(novo_usuario)
     db.commit()
     db.refresh(novo_usuario)
@@ -23,7 +23,7 @@ def registrar_admin(usuario: UsuarioCreate, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(dados: LoginRequest, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.email == dados.email).first()
-    if not usuario or usuario.senha_hash != dados.senha:
+    if not usuario or not verificar_senha(dados.senha, usuario.senha_hash):
         raise HTTPException(status_code=401, detail="E-mail ou senha incorretos.")
     
     return {
