@@ -1,6 +1,8 @@
 import secrets
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import bcrypt
+import jwt
 from fastapi import Header, HTTPException, status
 from app.core.config import settings
 
@@ -13,6 +15,9 @@ def gerar_hash_senha(senha: str) -> str:
         raise ValueError("Senha longa demais.")
     return bcrypt.hashpw(senha_bytes, bcrypt.gensalt()).decode("utf-8")
 
+# Hash falso usado quando o e-mail não existe, para o login demorar igual e não revelar quais e-mails existem
+HASH_FALSO = bcrypt.hashpw(b"senha-descartavel", bcrypt.gensalt()).decode("utf-8")
+
 def verificar_senha(senha: str, senha_hash: str) -> bool:
     senha_bytes = senha.encode("utf-8")
     if len(senha_bytes) > LIMITE_BYTES_SENHA:
@@ -22,6 +27,25 @@ def verificar_senha(senha: str, senha_hash: str) -> bool:
     except ValueError:
         # Hash inválido no banco (ex.: senha antiga em texto puro) nunca autentica
         return False
+
+def criar_token_acesso(usuario_id: int, is_admin: bool) -> str:
+    agora = datetime.now(timezone.utc)
+    payload = {
+        "sub": str(usuario_id),
+        "is_admin": is_admin,
+        "iat": agora,
+        "exp": agora + timedelta(minutes=settings.JWT_EXPIRA_MINUTOS),
+    }
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITMO)
+
+def decodificar_token(token: str) -> dict:
+    # Fixar o algoritmo evita aceitar tokens assinados com "none" ou outro método
+    return jwt.decode(
+        token,
+        settings.JWT_SECRET,
+        algorithms=[settings.JWT_ALGORITMO],
+        options={"require": ["exp", "sub"]},
+    )
 
 def exigir_admin(x_admin_key: Optional[str] = Header(default=None)) -> None:
     if not settings.ADMIN_API_KEY:
