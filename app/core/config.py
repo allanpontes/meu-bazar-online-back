@@ -1,4 +1,5 @@
 from typing import List, Literal
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -12,6 +13,10 @@ class Settings(BaseSettings):
     SACOLA_MAX_ITENS: int = 10
     # Chave das rotas administrativas de pedidos; vazia = rotas bloqueadas
     ADMIN_API_KEY: str = ""
+    # Segredo que assina os JWT; sem valor padrão de propósito: o app não sobe sem ele
+    JWT_SECRET: str = Field(min_length=32)
+    JWT_ALGORITMO: str = "HS256"
+    JWT_EXPIRA_MINUTOS: int = 480
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
