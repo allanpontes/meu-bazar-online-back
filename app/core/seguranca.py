@@ -1,10 +1,13 @@
-import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import bcrypt
 import jwt
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.core.database import get_db
+from app.usuarios.modelos import Usuario
 
 # O bcrypt só considera os 72 primeiros bytes da senha
 LIMITE_BYTES_SENHA = 72
@@ -47,8 +50,27 @@ def decodificar_token(token: str) -> dict:
         options={"require": ["exp", "sub"]},
     )
 
-def exigir_admin(x_admin_key: Optional[str] = Header(default=None)) -> None:
-    if not settings.ADMIN_API_KEY:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Área administrativa não configurada.")
-    if not x_admin_key or not secrets.compare_digest(x_admin_key, settings.ADMIN_API_KEY):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Acesso administrativo negado.")
+esquema_bearer = HTTPBearer(auto_error=False)
+
+def exigir_admin(
+    credenciais: Optional[HTTPAuthorizationCredentials] = Depends(esquema_bearer),
+    db: Session = Depends(get_db),
+) -> Usuario:
+    nao_autorizado = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Acesso administrativo negado.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if not credenciais:
+        raise nao_autorizado
+    try:
+        payload = decodificar_token(credenciais.credentials)
+        usuario_id = int(payload["sub"])
+    except (jwt.PyJWTError, ValueError):
+        raise nao_autorizado
+
+    # Confere no banco: se a conta foi apagada ou deixou de ser admin, o token antigo deixa de valer
+    usuario = db.get(Usuario, usuario_id)
+    if not usuario or not usuario.is_admin:
+        raise nao_autorizado
+    return usuario
