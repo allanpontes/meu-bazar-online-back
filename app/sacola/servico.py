@@ -111,6 +111,8 @@ def montar_sacola(db: Session, sessao_id: str | None) -> SacolaResponse:
             preco=produto.preco,
             imagem_url=produto.imagem_url,
             estado_conservacao=produto.estado_conservacao,
+            tamanho=produto.tamanho,
+            categoria=produto.categoria,
             expira_em=_como_utc(item.expira_em),
             segundos_restantes=max(0, int((_como_utc(item.expira_em) - agora).total_seconds())),
         )

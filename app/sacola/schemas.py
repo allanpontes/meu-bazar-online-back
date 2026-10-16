@@ -8,6 +8,8 @@ class ItemSacolaResponse(BaseModel):
     preco: float
     imagem_url: Optional[str] = None
     estado_conservacao: str
+    tamanho: Optional[str] = None
+    categoria: Optional[str] = None
     expira_em: datetime
     segundos_restantes: int
 
