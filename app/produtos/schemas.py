@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
 StatusProduto = Literal["Disponivel", "Reservado", "Vendido"]
+CategoriaProduto = Literal["Roupa", "Calçado", "Bolsa", "Acessório", "Outros"]
 
 class ProdutoBase(BaseModel):
     nome: str = Field(min_length=1, max_length=150)
@@ -9,6 +10,8 @@ class ProdutoBase(BaseModel):
     preco: float = Field(gt=0)
     imagem_url: Optional[str] = None
     estado_conservacao: str = Field(min_length=1, max_length=50)
+    tamanho: Optional[str] = Field(default=None, max_length=20)
+    categoria: Optional[CategoriaProduto] = None
     estoque: int = Field(default=1, ge=0)
     status: StatusProduto = "Disponivel"
 
@@ -21,6 +24,8 @@ class ProdutoUpdate(BaseModel):
     preco: Optional[float] = Field(default=None, gt=0)
     imagem_url: Optional[str] = None
     estado_conservacao: Optional[str] = Field(default=None, min_length=1, max_length=50)
+    tamanho: Optional[str] = Field(default=None, max_length=20)
+    categoria: Optional[CategoriaProduto] = None
     estoque: Optional[int] = Field(default=None, ge=0)
     status: Optional[StatusProduto] = None
 

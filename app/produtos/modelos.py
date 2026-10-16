@@ -16,6 +16,8 @@ class Produto(Base):
     preco = Column(Float, nullable=False)
     imagem_url = Column(String, nullable=True)
     estado_conservacao = Column(String, nullable=False)
+    tamanho = Column(String(20), nullable=True)
+    categoria = Column(String(30), nullable=True)
     estoque = Column(Integer, default=1)
     status = Column(String, default="Disponivel")  # Disponivel, Reservado, Vendido
     criado_em = Column(String, default=obter_hora_brasilia_str)
