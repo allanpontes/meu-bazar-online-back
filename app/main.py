@@ -7,11 +7,9 @@ from app.dashboard.rotas import router as dashboard_router
 from app.sacola.rotas import router as sacola_router
 from app.pedidos.rotas import router as pedidos_router
 from app.core.config import settings
-from app.core.database import engine, Base
 from app.core.limites import limiter, limite_excedido
 
-# Cria absolutamente todas as tabelas novas no Neon de uma vez só
-Base.metadata.create_all(bind=engine)
+# O schema é gerido pelo Alembic (alembic upgrade head); o app não cria nem altera tabelas
 
 app = FastAPI(
     title="Bazar Online API Super",

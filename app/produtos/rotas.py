@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from app.core.database import get_db, engine, Base
+from app.core.database import get_db
 from app.core.seguranca import exigir_admin
 from app.produtos.modelos import Produto
 from app.produtos.schemas import ProdutoCreate, ProdutoUpdate, ProdutoResponse
 from app.sacola.servico import liberar_expirados
-
-Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
