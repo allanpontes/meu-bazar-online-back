@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # Em produção com HTTPS: COOKIE_SECURE=true e, se front e API estiverem em domínios diferentes, COOKIE_SAMESITE=none
     COOKIE_SECURE: bool = False
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    # /docs, /redoc e /openapi.json; desligado por padrão, ligue só em local e develop
+    DOCS_ATIVOS: bool = False
     SACOLA_MINUTOS: int = 15
     SACOLA_MAX_ITENS: int = 10
     # Segredo que assina os JWT; sem valor padrão de propósito: o app não sobe sem ele

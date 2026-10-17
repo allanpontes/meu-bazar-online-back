@@ -11,7 +11,13 @@ from app.core.database import engine, Base
 # Cria absolutamente todas as tabelas novas no Neon de uma vez só
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Bazar Online API Super", version="1.2.0")
+app = FastAPI(
+    title="Bazar Online API Super",
+    version="1.2.0",
+    docs_url="/docs" if settings.DOCS_ATIVOS else None,
+    redoc_url="/redoc" if settings.DOCS_ATIVOS else None,
+    openapi_url="/openapi.json" if settings.DOCS_ATIVOS else None,
+)
 
 app.add_middleware(
     CORSMiddleware,
