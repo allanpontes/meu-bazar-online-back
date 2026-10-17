@@ -1,9 +1,10 @@
 import uuid
 from typing import Optional
-from fastapi import APIRouter, Cookie, Depends, Response
+from fastapi import APIRouter, Cookie, Depends, Request, Response
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.limites import limiter
 from app.sacola import servico
 from app.sacola.schemas import SacolaResponse
 
@@ -37,7 +38,9 @@ def ver_sacola(
     return servico.montar_sacola(db, _sessao_valida(sacola_sessao))
 
 @router.post("/itens/{produto_id}", response_model=SacolaResponse)
+@limiter.limit(settings.LIMITE_SACOLA)
 def adicionar_item(
+    request: Request,
     produto_id: int,
     response: Response,
     sacola_sessao: Optional[str] = Cookie(default=None),

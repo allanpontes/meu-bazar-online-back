@@ -1,7 +1,9 @@
 from typing import List, Optional
-from fastapi import APIRouter, Cookie, Depends, status
+from fastapi import APIRouter, Cookie, Depends, Request, status
 from sqlalchemy.orm import Session
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.limites import limiter
 from app.core.seguranca import exigir_admin
 from app.pedidos import servico
 from app.pedidos.schemas import PedidoCreate, PedidoResponse, PedidoStatusUpdate, StatusPedido
@@ -10,7 +12,9 @@ from app.sacola.rotas import _sessao_valida
 router = APIRouter()
 
 @router.post("", response_model=PedidoResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(settings.LIMITE_PEDIDOS)
 def criar_pedido(
+    request: Request,
     dados: PedidoCreate,
     sacola_sessao: Optional[str] = Cookie(default=None),
     db: Session = Depends(get_db),
