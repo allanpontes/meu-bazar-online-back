@@ -4,6 +4,7 @@ from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.pedidos.expiracao import expirar_pedidos_vencidos
 from app.produtos.modelos import Produto
 from app.sacola.modelos import ItemSacola, agora_utc
 from app.sacola.schemas import ItemSacolaResponse, SacolaResponse
@@ -24,12 +25,12 @@ def liberar_expirados(db: Session) -> None:
         .filter(ItemSacola.status == "Ativo", ItemSacola.expira_em <= agora_utc())
         .all()
     )
-    if not vencidos:
-        return
-    for item in vencidos:
-        item.status = "Expirado"
-        _liberar_produto(db, item.produto_id)
-    db.commit()
+    if vencidos:
+        for item in vencidos:
+            item.status = "Expirado"
+            _liberar_produto(db, item.produto_id)
+        db.commit()
+    expirar_pedidos_vencidos(db)
 
 def _item_ativo(db: Session, sessao_id: str, produto_id: int):
     return (
