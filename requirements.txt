@@ -9,3 +9,4 @@ bcrypt==5.0.0
 PyJWT==2.15.1
 slowapi==0.1.10
 limits==5.8.0
+alembic==1.20.0

@@ -1,4 +1,7 @@
-"""Adiciona as colunas tamanho e categoria na tabela de produtos.
+"""OBSOLETO: o schema agora é versionado pelo Alembic (pasta alembic/); a baseline já inclui estas colunas.
+Mantido só como referência histórica até a branch production passar no alembic check.
+
+Adiciona as colunas tamanho e categoria na tabela de produtos.
 
 Uso, na raiz do back com o venv ativo:  python migrar_tamanho_categoria.py
 Usa a DATABASE_URL do ambiente (ou do .env). Pode ser executado mais de uma vez.
