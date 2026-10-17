@@ -19,6 +19,9 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+# O pooler do Neon (PgBouncer) atrapalha migrações: se DATABASE_URL_MIGRACAO existir, usa a conexão direta
+URL_BANCO = settings.DATABASE_URL_MIGRACAO or settings.DATABASE_URL
+
 # Tabelas antigas sem modelo (app/carrinho aposentado; produtos e produtos_bazar são de versões anteriores):
 # o Alembic não pode tentar apagá-las. Remover cada uma só numa revisão própria, depois de conferir os dados.
 TABELAS_IGNORADAS = {"carrinho_reservas", "produtos", "produtos_bazar"}
@@ -33,7 +36,7 @@ def incluir_objeto(objeto, nome, tipo, reflexo, comparado_com):
 def run_migrations_offline() -> None:
     """Gera o SQL sem conectar ao banco (alembic upgrade head --sql)."""
     context.configure(
-        url=settings.DATABASE_URL,
+        url=URL_BANCO,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -46,8 +49,8 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    # A URL vem de settings (variável de ambiente DATABASE_URL tem prioridade sobre o .env)
-    connectable = create_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
+    # A URL vem de settings (variável de ambiente tem prioridade sobre o .env)
+    connectable = create_engine(URL_BANCO, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(

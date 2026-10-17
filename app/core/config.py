@@ -1,5 +1,5 @@
 import logging
-from typing import List, Literal
+from typing import List, Literal, Optional
 from limits import parse_many
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -8,6 +8,8 @@ logger = logging.getLogger("uvicorn.error")
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+    # Conexão direta (host sem -pooler) usada só pelo Alembic; se vazia, o Alembic usa DATABASE_URL
+    DATABASE_URL_MIGRACAO: Optional[str] = None
     # Origens do front separadas por vírgula; obrigatório ser explícito por causa dos cookies
     FRONTEND_ORIGINS: str = "http://localhost:4200"
     # Em produção com HTTPS: COOKIE_SECURE=true e, se front e API estiverem em domínios diferentes, COOKIE_SAMESITE=none
