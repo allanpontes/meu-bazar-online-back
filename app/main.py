@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.produtos.rotas import router as produtos_router
 from app.usuarios.rotas import router as usuarios_router
-from app.carrinho.rotas import router as carrinho_router
 from app.dashboard.rotas import router as dashboard_router
 from app.sacola.rotas import router as sacola_router
 from app.pedidos.rotas import router as pedidos_router
@@ -24,10 +23,9 @@ app.add_middleware(
 
 app.include_router(produtos_router, prefix="/produtos", tags=["Produtos"])
 app.include_router(usuarios_router, prefix="/auth", tags=["Autenticação"])
-app.include_router(carrinho_router, prefix="/carrinho", tags=["Carrinho e Reservas"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard Gerencial"])
 app.include_router(sacola_router, prefix="/sacola", tags=["Sacola do Visitante"])
 app.include_router(pedidos_router, prefix="/pedidos", tags=["Pedidos"])
 @app.get("/")
 def read_root():
-    return {"status": "Backend do Bazar Online completo com Dashboard e Carrinho operando!"}
+    return {"status": "Backend do Bazar Online completo com Dashboard operando!"}
