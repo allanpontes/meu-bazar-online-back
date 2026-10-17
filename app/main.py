@@ -29,7 +29,8 @@ app.add_middleware(
     allow_origins=settings.origens_permitidas,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "X-Sacola-Sessao"],
+    expose_headers=["X-Sacola-Sessao"],
 )
 
 app.include_router(produtos_router, prefix="/produtos", tags=["Produtos"])
