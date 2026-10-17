@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Cookie, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
@@ -7,7 +7,7 @@ from app.core.limites import limiter
 from app.core.seguranca import exigir_admin
 from app.pedidos import servico
 from app.pedidos.schemas import PedidoCreate, PedidoResponse, PedidoStatusUpdate, StatusPedido
-from app.sacola.rotas import _sessao_valida
+from app.sacola.rotas import sessao_da_requisicao
 
 router = APIRouter()
 
@@ -16,10 +16,10 @@ router = APIRouter()
 def criar_pedido(
     request: Request,
     dados: PedidoCreate,
-    sacola_sessao: Optional[str] = Cookie(default=None),
+    sessao_id: Optional[str] = Depends(sessao_da_requisicao),
     db: Session = Depends(get_db),
 ):
-    return servico.criar_pedido(db, _sessao_valida(sacola_sessao), dados)
+    return servico.criar_pedido(db, sessao_id, dados)
 
 @router.get("", response_model=List[PedidoResponse], dependencies=[Depends(exigir_admin)])
 def listar_pedidos(status_pedido: Optional[StatusPedido] = None, db: Session = Depends(get_db)):
