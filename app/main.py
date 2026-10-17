@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 from app.produtos.rotas import router as produtos_router
 from app.usuarios.rotas import router as usuarios_router
 from app.dashboard.rotas import router as dashboard_router
@@ -7,6 +8,7 @@ from app.sacola.rotas import router as sacola_router
 from app.pedidos.rotas import router as pedidos_router
 from app.core.config import settings
 from app.core.database import engine, Base
+from app.core.limites import limiter, limite_excedido
 
 # Cria absolutamente todas as tabelas novas no Neon de uma vez só
 Base.metadata.create_all(bind=engine)
@@ -18,6 +20,9 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DOCS_ATIVOS else None,
     openapi_url="/openapi.json" if settings.DOCS_ATIVOS else None,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, limite_excedido)
 
 app.add_middleware(
     CORSMiddleware,

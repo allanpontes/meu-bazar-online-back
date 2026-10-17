@@ -1,5 +1,6 @@
 import logging
 from typing import List, Literal
+from limits import parse_many
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,6 +15,14 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
     # /docs, /redoc e /openapi.json; desligado por padrão, ligue só em local e develop
     DOCS_ATIVOS: bool = False
+    # Limite de requisições por IP, no formato da biblioteca limits ("5/minute;20/hour").
+    # Operadoras móveis compartilham IP entre clientes: ajuste aqui, sem mexer no código
+    LIMITES_ATIVOS: bool = True
+    LIMITE_LOGIN: str = "5/minute;20/hour"
+    LIMITE_SACOLA: str = "10/minute;30/hour"
+    LIMITE_PEDIDOS: str = "3/minute;10/hour"
+    # Quantos proxies confiáveis existem na frente da API (o IP do visitante é o N-ésimo de trás para frente em X-Forwarded-For). 0 = ignora o cabeçalho
+    PROXY_SALTOS: int = Field(default=1, ge=0)
     SACOLA_MINUTOS: int = 15
     SACOLA_MAX_ITENS: int = 10
     # Segredo que assina os JWT; sem valor padrão de propósito: o app não sobe sem ele
@@ -34,6 +43,11 @@ class Settings(BaseSettings):
                 raise ValueError("FRONTEND_ORIGINS não pode ser '*': com cookies as origens precisam ser explícitas")
             if origem.endswith("/"):
                 raise ValueError(f"FRONTEND_ORIGINS não pode terminar com barra: '{origem}'")
+        for nome in ("LIMITE_LOGIN", "LIMITE_SACOLA", "LIMITE_PEDIDOS"):
+            try:
+                parse_many(getattr(self, nome))
+            except ValueError as erro:
+                raise ValueError(f"{nome} inválido ({erro}); use por exemplo '5/minute;20/hour'")
         if self.COOKIE_SAMESITE == "none" and not self.COOKIE_SECURE:
             raise ValueError("COOKIE_SAMESITE=none exige COOKIE_SECURE=true, senão o navegador descarta o cookie")
         if self.COOKIE_SECURE and any("localhost" in o for o in self.origens_permitidas):
