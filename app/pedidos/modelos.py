@@ -11,7 +11,7 @@ class Pedido(Base):
     whatsapp = Column(String(20), nullable=False)
     endereco = Column(String(300), nullable=False)
     subtotal = Column(Float, nullable=False)
-    status = Column(String(20), default="AguardandoPagamento", nullable=False, index=True)  # AguardandoPagamento, Pago, Cancelado
+    status = Column(String(20), default="AguardandoPagamento", nullable=False, index=True)  # AguardandoPagamento, Pago, Cancelado, Expirado
     criado_em = Column(DateTime(timezone=True), default=agora_utc, nullable=False)
 
     itens = relationship("ItemPedido", back_populates="pedido", cascade="all, delete-orphan", order_by="ItemPedido.id")
