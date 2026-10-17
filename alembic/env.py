@@ -19,8 +19,9 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Tabela legada sem modelo importado (app/carrinho foi aposentado): o Alembic não pode tentar apagá-la
-TABELAS_IGNORADAS = {"carrinho_reservas"}
+# Tabelas antigas sem modelo (app/carrinho aposentado; produtos e produtos_bazar são de versões anteriores):
+# o Alembic não pode tentar apagá-las. Remover cada uma só numa revisão própria, depois de conferir os dados.
+TABELAS_IGNORADAS = {"carrinho_reservas", "produtos", "produtos_bazar"}
 
 
 def incluir_objeto(objeto, nome, tipo, reflexo, comparado_com):
