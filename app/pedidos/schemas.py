@@ -1,9 +1,10 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Literal
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
+from app.core.config import settings
 
-StatusPedido = Literal["AguardandoPagamento", "Pago", "Cancelado"]
+StatusPedido = Literal["AguardandoPagamento", "Pago", "Cancelado", "Expirado"]
 
 class PedidoCreate(BaseModel):
     nome_cliente: str = Field(min_length=2, max_length=120)
@@ -44,6 +45,11 @@ class PedidoResponse(BaseModel):
     status: StatusPedido
     criado_em: datetime
     itens: List[ItemPedidoResponse]
+
+    @computed_field
+    @property
+    def expira_em(self) -> datetime:
+        return self.criado_em + timedelta(hours=settings.PEDIDO_HORAS_PAGAMENTO)
 
 class PedidoStatusUpdate(BaseModel):
     status: Literal["Pago", "Cancelado"]

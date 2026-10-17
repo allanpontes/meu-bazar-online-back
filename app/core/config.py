@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     PROXY_SALTOS: int = Field(default=3, ge=0)
     SACOLA_MINUTOS: int = 15
     SACOLA_MAX_ITENS: int = 10
+    # Prazo para combinar o pagamento: depois disso o pedido AguardandoPagamento vira Expirado e as peças voltam à vitrine
+    PEDIDO_HORAS_PAGAMENTO: int = Field(default=12, gt=0)
     # Segredo que assina os JWT; sem valor padrão de propósito: o app não sobe sem ele
     JWT_SECRET: str = Field(min_length=32)
     JWT_ALGORITMO: str = "HS256"
