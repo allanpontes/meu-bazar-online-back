@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     LIMITE_LOGIN: str = "5/minute;20/hour"
     LIMITE_SACOLA: str = "10/minute;30/hour"
     LIMITE_PEDIDOS: str = "3/minute;10/hour"
-    # Quantos proxies confiáveis existem na frente da API (o IP do visitante é o N-ésimo de trás para frente em X-Forwarded-For). 0 = ignora o cabeçalho
-    PROXY_SALTOS: int = Field(default=1, ge=0)
+    # Proxies confiáveis na frente da API: o IP do visitante é a N-ésima entrada de trás para frente em X-Forwarded-For.
+    # Render: 3 (visitante, borda da Cloudflare, proxy interno do Render). 0 = ignora o cabeçalho (acesso direto, sem proxy)
+    PROXY_SALTOS: int = Field(default=3, ge=0)
     SACOLA_MINUTOS: int = 15
     SACOLA_MAX_ITENS: int = 10
     # Segredo que assina os JWT; sem valor padrão de propósito: o app não sobe sem ele
